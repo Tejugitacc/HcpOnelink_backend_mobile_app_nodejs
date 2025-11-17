@@ -23,21 +23,27 @@ app.post('/login', async (req, res) => {
   console.log('========', req.body);
 
   try {
+    // Prepare Basic Auth (Appian username + Appian password)
+    const base64Creds = Buffer.from(`${username}:${password}`).toString(
+      'base64'
+    );
+
     const response = await fetch(
       'https://dsi-hcp-dev.appiancloud.com/suite/webapi/mobileuserlogin',
       {
         method: 'POST',
 
         headers: {
-          Authorization: `Appian-API-Key ${process.env.APPIAN_API_KEY}`,
+          Authorization: `Basic ${base64Creds}`, // <<< UPDATED
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
+
         body: JSON.stringify({ username, password })
       }
     );
-    console.log('======== response', response);
 
+    console.log('======== response', response);
     console.log('Headers:', response.headers);
 
     const buffer = await response.arrayBuffer();
@@ -49,8 +55,8 @@ app.post('/login', async (req, res) => {
     } catch {
       data = { raw: text };
     }
-    console.log('DATA :', data);
 
+    console.log('DATA :', data);
     res.status(response.status).json(data);
   } catch (err) {
     console.error('Appian Proxy Error:', err);
