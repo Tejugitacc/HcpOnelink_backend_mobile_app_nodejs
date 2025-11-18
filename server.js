@@ -21,6 +21,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 require('./app/routes/auth.routes')(app);
+require('./app/routes/cache.routes')(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 4000;

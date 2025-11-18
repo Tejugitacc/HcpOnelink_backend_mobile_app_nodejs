@@ -1,9 +1,11 @@
-// Appian LOGIN Proxy
-// ------------------------------
+const { appianloginURL } = require('../constants/appianURL');
+const { saveUserCredentials } = require("../services/userStorage.service");
+
+
 exports.login = async (req, res) => {
-  console.log('========', req.body);
+
   const { username, password } = req.body;
-  console.log('Authfunction loaded');
+  console.log('Authfunction loaded',req.body);
 
   try {
     // Prepare Basic Auth (Appian username + Appian password)
@@ -12,16 +14,14 @@ exports.login = async (req, res) => {
     );
 
     const response = await fetch(
-      'https://dsi-hcp-dev.appiancloud.com/suite/webapi/mobileuserlogin',
+      appianloginURL,
       {
         method: 'POST',
-
         headers: {
-          Authorization: `Basic ${base64Creds}`, // <<< UPDATED
+          Authorization: `Basic ${base64Creds}`,
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-
         body: JSON.stringify({ username, password })
       }
     );
@@ -37,8 +37,10 @@ exports.login = async (req, res) => {
     }
 
     console.log('DATA :', data);
-    //  const helpercall = helpers.DecodeResponse(response);
-    // console.log('helper function DATA :', helpercall);
+    if (response.status === 200) {
+      saveUserCredentials(username, password);
+      console.log("User credentials saved for:", username);
+    }
     res.status(response.status).json(data);
   } catch (err) {
     console.error('Appian Proxy Error:', err);
