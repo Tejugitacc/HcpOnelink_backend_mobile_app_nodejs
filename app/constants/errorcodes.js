@@ -1,0 +1,4 @@
+module.exports = {
+  SERVER_ERROR_CODE: 500,
+  SUCCESS_STATUS_CODE: 200
+};
