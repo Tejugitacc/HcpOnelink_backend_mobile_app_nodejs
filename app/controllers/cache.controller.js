@@ -22,9 +22,12 @@ exports.getProfile = async (req, res) => {
     console.log("BODY:", req.body);
     // 1. Check cache
     const cache = getCachedData(userId, 'profile');
+    console.log("BODY: cache", cache);
     if (cache) return res.json({ source: 'cache', data: cache });
 
     const creds = getUserCredentials(username);
+    console.log("BODY: cache", creds);
+    
     if (!creds) return res.status(404).json({ error: "User not found" });
   
     const { username: un, password: pw } = creds;

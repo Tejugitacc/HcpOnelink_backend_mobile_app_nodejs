@@ -1,11 +1,11 @@
 // app/services/appian.service.js
 
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+// const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const { viewProfileURL } = require('../constants/appianURL')
 
 async function fetchAppianProfile(username, password, userId) {
     const base64Creds = Buffer.from(`${username}:${password}`).toString('base64');
-
+    console.log("fetchAppianProfile username, password, userId", username, password, userId);
     const url = `${viewProfileURL}?userId=${encodeURIComponent(userId)}`;
 
     const res = await fetch(url, {

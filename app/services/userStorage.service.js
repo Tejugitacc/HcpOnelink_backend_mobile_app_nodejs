@@ -9,6 +9,12 @@ if (!fs.existsSync(USERS_DIR)) {
 }
 
 function saveUserCredentials(username, password) {
+
+  if (!username || !password) {
+    console.error("❌ saveUserCredentials() received missing username/password");
+    return;
+  }
+  
   const encryptedPassword = encrypt(password);
 
   const filePath = path.join(USERS_DIR, `${username}.json`);
