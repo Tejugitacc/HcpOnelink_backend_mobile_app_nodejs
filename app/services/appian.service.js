@@ -1,11 +1,8 @@
 // app/services/appian.service.js
-
-// const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const { viewProfileURL } = require('../constants/appianURL')
+const { viewProfileURL, getEngagementsURL, invoicesExpensesURL } = require('../constants/appianURL')
 
 async function fetchAppianProfile(username, password, userId) {
     const base64Creds = Buffer.from(`${username}:${password}`).toString('base64');
-    console.log("fetchAppianProfile username, password, userId", username, password, userId);
     const url = `${viewProfileURL}?userId=${encodeURIComponent(userId)}`;
 
     const res = await fetch(url, {
@@ -20,9 +17,10 @@ async function fetchAppianProfile(username, password, userId) {
 }
 
 
-async function fetchAppianEngagements(username, password) {
-    const res = await fetch(process.env.APPIAN_ENGAGEMENTS_API, {
-        method: 'GET',
+async function fetchAppianEngagements(username, password, userId) {
+    const url = `${getEngagementsURL}?userId=${encodeURIComponent(userId)}`;
+    const res = await fetch(url, {
+        method: 'POST',
         headers: {
             'Authorization': 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
         }
@@ -30,9 +28,10 @@ async function fetchAppianEngagements(username, password) {
     return await res.json();
 }
 
-async function fetchAppianInvoices(username, password) {
-    const res = await fetch(process.env.APPIAN_INVOICES_API, {
-        method: 'GET',
+async function fetchAppianInvoices(username, password,userId) {
+    const url = `${invoicesExpensesURL}?userId=${encodeURIComponent(userId)}`;
+    const res = await fetch(url, {
+        method: 'POST',
         headers: {
             'Authorization': 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
         }
