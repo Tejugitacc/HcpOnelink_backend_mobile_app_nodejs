@@ -14,12 +14,9 @@ const { getUserCredentials } = require("../services/userStorage.service");
 exports.getProfile = async (req, res) => {
 
     const { username } = req.body;
-
     const userId = req.params.userId;
 
-
-    console.log("USERID:", userId);
-    console.log("BODY:", req.body);
+    console.log("BODY:  userId", req.body, userId);
     // 1. Check cache
     const cache = getCachedData(userId, 'profile');
     console.log("BODY: cache", cache);
