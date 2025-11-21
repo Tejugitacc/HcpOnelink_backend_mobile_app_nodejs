@@ -1,6 +1,9 @@
 const { appianloginURL } = require('../constants/appianURL');
 const { signToken } = require('../services/token.service');
 const { saveUserCredentials } = require("../services/userStorage.service");
+const { SERVER_ERROR_CODE } = require("../constants/errorcodes")
+const { SUCCESS_STATUS_CODE } = require("../constants/errorcodes")
+
 
 
 exports.login = async (req, res) => {
@@ -25,7 +28,7 @@ exports.login = async (req, res) => {
     let apiResult;
     try { apiResult = JSON.parse(text); } catch { apiResult = { raw: text }; }
 
-    if (response.status !== 200) {
+    if (response.status !== SUCCESS_STATUS_CODE) {
       return res.status(response.status).json(apiResult);
     }
 
@@ -45,7 +48,7 @@ exports.login = async (req, res) => {
 
   } catch (err) {
     console.error('Login error', err);
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(SERVER_ERROR_CODE).json({ success: false, message: err.message });
   }
 };
 
