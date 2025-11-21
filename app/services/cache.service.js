@@ -1,41 +1,28 @@
-// app/services/cache.service.js
 const fs = require('fs');
 const path = require('path');
 
 const CACHE_DIR = path.join(__dirname, '../../cache');
-const EXPIRY_HOURS = 24;
+if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
 
-if (!fs.existsSync(CACHE_DIR)) {
-    fs.mkdirSync(CACHE_DIR);
-}
+const EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-function cacheFilePath(userId, type) {
-    return path.join(CACHE_DIR, `${userId}-${type}.json`);
-}
-
-function isCacheValid(filePath) {
-    if (!fs.existsSync(filePath)) return false;
-
-    const stats = fs.statSync(filePath);
-    const ageHours = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60);
-
-    return ageHours < EXPIRY_HOURS;
+function cacheFile(userId, type) {
+  return path.join(CACHE_DIR, `${userId}-${type}.json`);
 }
 
 function getCachedData(userId, type) {
-    const file = cacheFilePath(userId, type);
-    if (!isCacheValid(file)) return null;
-
-    const content = fs.readFileSync(file, 'utf8');
-    return JSON.parse(content);
+  const file = cacheFile(userId, type);
+  if (!fs.existsSync(file)) return null;
+  const stat = fs.statSync(file);
+  const age = Date.now() - stat.mtimeMs;
+  if (age > EXPIRY_MS) return null;
+  const json = JSON.parse(fs.readFileSync(file, 'utf8'));
+  return json;
 }
 
 function storeCache(userId, type, data) {
-    const file = cacheFilePath(userId, type);
-    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  const file = cacheFile(userId, type);
+  fs.writeFileSync(file, JSON.stringify({ retrievedAt: new Date().toISOString(), data }, null, 2));
 }
 
-module.exports = {
-    getCachedData,
-    storeCache
-};
+module.exports = { getCachedData, storeCache };

@@ -1,49 +1,51 @@
 const { appianloginURL } = require('../constants/appianURL');
+const { signToken } = require('../services/token.service');
 const { saveUserCredentials } = require("../services/userStorage.service");
 
 
 exports.login = async (req, res) => {
-
   const { username, password } = req.body;
-  console.log('Authfunction loaded',req.body);
+  if (!username || !password) return res.status(400).json({ success: false, message: 'Missing username/password' });
 
   try {
-    // Prepare Basic Auth (Appian username + Appian password)
-    const base64Creds = Buffer.from(`${username}:${password}`).toString(
-      'base64'
-    );
-
-    const response = await fetch(
-      appianloginURL,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Basic ${base64Creds}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      }
-    );
+    // verify; we will call the Appian login webapi (mobileuserlogin)
+    const base64 = Buffer.from(`${username}:${password}`).toString('base64');
+    const response = await fetch(appianloginURL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${base64}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
 
     const buffer = await response.arrayBuffer();
     const text = Buffer.from(buffer).toString('utf8');
+    let apiResult;
+    try { apiResult = JSON.parse(text); } catch { apiResult = { raw: text }; }
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { raw: text };
+    if (response.status !== 200) {
+      return res.status(response.status).json(apiResult);
     }
 
-    console.log('DATA :', data);
-    if (response.status === 200) {
-      saveUserCredentials(username, password);
-      console.log("User credentials saved for:", username);
-    }
-    res.status(response.status).json(data);
+    // appian login worked — we need a userId from API (dsiID etc). Adjust according to your API response
+    // Example: apiResult.dsiID might be [48149] or a number
+    const userIdFromApi = Array.isArray(apiResult.dsiID) ? apiResult.dsiID[0] : apiResult.dsiID || apiResult.userId;
+
+    const userId = userIdFromApi || username;
+
+    // store encrypted creds on server (by userId)
+    saveUserCredentials(userId, username, password);
+
+    // create JWT (we include userId and username in token; NOT password)
+    const token = signToken({ userId, username });
+
+    return res.json({ success: true, token, username, userId, message: 'Login OK' });
+
   } catch (err) {
-    console.error('Appian Proxy Error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Login error', err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
+

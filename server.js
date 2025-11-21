@@ -14,8 +14,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 require('./app/routes/auth.routes')(app);
-const cacheRoutes = require('./app/routes/cache.routes');
-app.use('/api/cache', cacheRoutes);
+const userRoutes = require('./app/routes/userdetails.routes');
+app.use('/api/user', userRoutes);
 
 
 // set port, listen for requests
