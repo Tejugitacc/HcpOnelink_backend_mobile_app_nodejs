@@ -9,4 +9,6 @@ router.get('/:userId/profile', authMiddleware, userController.getProfile);
 router.get('/:userId/engagements', authMiddleware, userController.getEngagements);
 router.get('/:userId/invoicesExpenses', authMiddleware, userController.getInvoicesExpenses );
 
+router.patch('/:userId/updateProfile', authMiddleware, userController.updateHcpProfile );
+
 module.exports = router;

@@ -5,3 +5,5 @@ export const viewProfileURL = "https://dsi-hcp-dev.appiancloud.com/suite/webapi/
 export const getEngagementsURL = "https://dsi-hcp-dev.appiancloud.com/suite/webapi/getHCPEngagements";
 
 export const invoicesExpensesURL =  "https://dsi-hcp-dev.appiancloud.com/suite/webapi/getHcpInvoicesExpenses";
+
+export const updateProfileURL = "https://dsi-hcp-dev.appiancloud.com/suite/webapi/updateHcpProfile"

@@ -3,7 +3,8 @@
 const {
     fetchAppianProfile,
     fetchAppianEngagements,
-    fetchAppianInvoices
+    fetchAppianInvoices,
+    updateAppianProfile
 } = require('../services/appian.service');
 const { getUserCredentialsByUserId } = require('../services/userStorage.service');
 
@@ -43,6 +44,22 @@ exports.getInvoicesExpenses = async (req, res) => {
     if (!creds) return res.status(404).json({ message: 'Credentials not found' });
 
     const data = await fetchAppianInvoices(creds.username, creds.password, userId);
+    return res.json({ source: 'appian', data });
+};
+
+
+exports.updateHcpProfile = async (req, res) => {
+    const { userId } = req.params;
+    if (!req.user || String(req.user.userId) !== String(userId))
+        return res.status(403).json({ message: 'Forbidden' });
+
+    const creds = getUserCredentialsByUserId(userId);
+    if (!creds) return res.status(404).json({ message: 'Credentials not found' });
+
+    const payload = req.body;     // ← HCP update fields
+
+    const data = await updateAppianProfile(creds.username, creds.password, payload);
+
     return res.json({ source: 'appian', data });
 };
 
