@@ -23,3 +23,9 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
   console.log(`Server running at http://localhost:${process.env.PORT || 4000}`)
 );
+
+
+// node -e "console.log(require('crypto').randomBytes(24).toString('base64').slice(0,32))"
+
+// node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
